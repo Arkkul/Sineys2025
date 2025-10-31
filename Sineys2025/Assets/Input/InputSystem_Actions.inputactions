@@ -1068,6 +1068,56 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Pig",
+            "id": "2d987502-a502-4f97-8114-0b6297b7229e",
+            "actions": [
+                {
+                    "name": "PigMove",
+                    "type": "Value",
+                    "id": "42691441-163f-4357-acc3-4382636f1a12",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "1D Axis",
+                    "id": "e5d97ba2-7082-4962-b74d-9fffbd0bbf11",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PigMove",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "76a011bc-fdc3-4f59-b5e5-527ac7f6e41a",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PigMove",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "e4b40481-512d-4727-ae1b-0adbab9c7e32",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PigMove",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                }
+            ]
         }
     ],
     "controlSchemes": [

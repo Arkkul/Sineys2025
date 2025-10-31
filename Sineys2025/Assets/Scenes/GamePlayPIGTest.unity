@@ -1193,6 +1193,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ConstantForwardController
   forwardSpeed: 5
   turnSpeedDegPerSec: 90
+  turnAction: {fileID: 5281804620494289625, guid: caa7d3821729bcf46b9f4909ad3e4fa7, type: 3}
   jumpTriggerTag: JumpPad
   jumpForce: 10
   obstacleTag: Obstacle
@@ -1201,7 +1202,7 @@ MonoBehaviour:
   drawGizmo: 1
   gizmoLength: 2
   gizmoHeadSize: 0.3
-  stunGizmoColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  stunGizmoColor: {r: 0.097738504, g: 1, b: 0, a: 1}
 --- !u!54 &1732083801
 Rigidbody:
   m_ObjectHideFlags: 0
