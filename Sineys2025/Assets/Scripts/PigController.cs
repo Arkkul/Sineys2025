@@ -4,37 +4,36 @@ using UnityEngine;
 public class PigController : MonoBehaviour
 {
     [Header("Motion")]
-    [Tooltip("Постоянная скорость движения вперёд в единицах/сек.")]
     public float forwardSpeed = 5f;
-
-    [Tooltip("Скорость поворота в градусах в секунду при удержании A/D.")]
     public float turnSpeedDegPerSec = 90f;
 
-    [Header("Jump")]
-    [Tooltip("Кнопка прыжка. Можно выбрать клавишу или Mouse0/Mouse1 и т.п.")]
-    public KeyCode jumpKey = KeyCode.Space;
-
-    [Tooltip("Сила прыжка (импульс), применяется по глобальной оси Y с ForceMode.Impulse.")]
+    [Header("Jump (trigger)")]
+    [Tooltip("Тег триггера, при входе в Collider с которым выполняется прыжок.")]
+    public string jumpTriggerTag = "JumpPad";
     public float jumpForce = 6f;
 
-    [Tooltip("Слой(ы), считающиеся 'землей' при проверке grounded. По умолчанию - все слои.")]
-    public LayerMask groundLayerMask = ~0;
+    [Header("Stun / Knockback")]
+    [Tooltip("Тег препятствия. Только объекты с этим тегом будут вызывать стан/отталкивание.")]
+    public string obstacleTag = "Obstacle";
 
-    [Tooltip("Дополнительное расстояние для проверки касания земли (в метрах).")]
-    public float groundCheckExtra = 0.05f;
+    [Tooltip("Сила отбрасывания (импульс) при столкновении.")]
+    public float knockbackForce = 8f;
+
+    [Tooltip("Длительность оглушения в секундах; во время оглушения отключены постоянное движение и поворот.")]
+    public float stunDuration = 1.0f;
 
     [Header("Gizmos")]
     public bool drawGizmo = true;
     public float gizmoLength = 2f;
     public float gizmoHeadSize = 0.3f;
-    public bool drawGroundCheckGizmo = true;
-    public Color groundGizmoColor = Color.red;
+    public Color stunGizmoColor = Color.yellow;
 
     Rigidbody rb;
     Collider col;
 
     float turnInput;
-    bool jumpRequested;
+    bool isStunned = false;
+    float stunTimer = 0f;
 
     void Awake()
     {
@@ -47,51 +46,89 @@ public class PigController : MonoBehaviour
 
     void Update()
     {
-        // Ввод поворота
+        // Чтение удерживаемого ввода поворота
         turnInput = 0f;
         if (Input.GetKey(KeyCode.A)) turnInput = -1f;
         if (Input.GetKey(KeyCode.D)) turnInput = 1f;
-
-        // Ввод прыжка (фиксируем в Update)
-        if (Input.GetKeyDown(jumpKey))
-        {
-            jumpRequested = true;
-        }
     }
 
     void FixedUpdate()
     {
-        // Поворот через MoveRotation
-        if (Mathf.Abs(turnInput) > 0f)
+        if (isStunned)
+        {
+            stunTimer -= Time.fixedDeltaTime;
+            if (stunTimer <= 0f)
+            {
+                isStunned = false;
+                // удерживаемый ввод уже прочитан в Update, сработает сразу
+            }
+        }
+
+        if (!isStunned && Mathf.Abs(turnInput) > 0f)
         {
             float deltaDeg = turnInput * turnSpeedDegPerSec * Time.fixedDeltaTime;
             Quaternion deltaRot = Quaternion.Euler(0f, deltaDeg, 0f);
             rb.MoveRotation(rb.rotation * deltaRot);
         }
 
-        // Проверка "на земле" через Raycast вниз от центра коллайдера
-        bool isGrounded = false;
-        if (col != null)
+        // Постоянное движение вперёд отключено во время стана.
+        if (!isStunned)
         {
-            float halfHeight = col.bounds.extents.y;
-            float checkDistance = halfHeight + groundCheckExtra;
-            Vector3 origin = transform.position;
-            // Немного смещаем начало вниз чтобы корректно работать с Capsule/Box/Mesh
-            origin.y += 0.01f;
-            isGrounded = Physics.Raycast(origin, Vector3.down, checkDistance, groundLayerMask, QueryTriggerInteraction.Ignore);
+            Vector3 forwardVel = transform.forward * forwardSpeed;
+            rb.linearVelocity = new Vector3(forwardVel.x, rb.linearVelocity.y, forwardVel.z);
+        }
+        // если isStunned == true, не перезаписываем rb.velocity чтобы сохранить эффект отбрасывания
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (isStunned) return;
+
+        if (string.IsNullOrEmpty(obstacleTag)) return;
+
+        // Проверяем: если любой объект участвующий в столкновении имеет нужный тег -> стан
+        if (CollisionHasTag(collision, obstacleTag))
+        {
+            StartStunWithKnockback(collision);
+        }
+    }
+
+    bool CollisionHasTag(Collision collision, string tagToCheck)
+    {
+        // Проверяем непосредственно объект коллайдера (тот, с которым столкнулись)
+        if (collision.collider != null && collision.collider.CompareTag(tagToCheck)) return true;
+        // Проверяем весь GameObject
+        if (collision.gameObject != null && collision.gameObject.CompareTag(tagToCheck)) return true;
+        // Проверяем root (на случай, если тег висит на корне)
+        if (collision.transform != null && collision.transform.root != null && collision.transform.root.CompareTag(tagToCheck)) return true;
+
+        // Проверяем все контакты на предмет других коллайдеров с нужным тег (доп. надёжность)
+        foreach (var contact in collision.contacts)
+        {
+            if (contact.otherCollider != null && contact.otherCollider.CompareTag(tagToCheck)) return true;
+            if (contact.thisCollider != null && contact.thisCollider.CompareTag(tagToCheck)) return true;
         }
 
-        // Прыжок: применяем импульс вверх в глобальной оси Y если запрошен и на земле
-        if (jumpRequested && isGrounded)
-        {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        }
-        // Сброс флага (если прыжок не был применён — флаг всё равно сбрасываем, чтобы избежать повторов)
-        jumpRequested = false;
+        return false;
+    }
 
-        // Постоянная локальная скорость вперёд. Сохраняем вертикальную составляющую после прыжка.
-        Vector3 forwardVel = transform.forward * forwardSpeed;
-        rb.linearVelocity = new Vector3(forwardVel.x, rb.linearVelocity.y, forwardVel.z);
+    void StartStunWithKnockback(Collision collision)
+    {
+        isStunned = true;
+        stunTimer = Mathf.Max(0f, stunDuration);
+
+        // Отбрасывание назад по локальной задней оси
+        Vector3 knockDir = -transform.forward.normalized;
+        rb.AddForce(knockDir * knockbackForce, ForceMode.Impulse);
+    }
+
+    // Прыжок срабатывает при входе в триггер с указанным тегом.
+    void OnTriggerEnter(Collider other)
+    {
+        if (other == null) return;
+        if (!other.CompareTag(jumpTriggerTag)) return;
+
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 
     void OnDrawGizmos()
@@ -112,16 +149,10 @@ public class PigController : MonoBehaviour
         Gizmos.DrawLine(end, end + rightHead * gizmoHeadSize);
         Gizmos.DrawLine(end, end + leftHead * gizmoHeadSize);
 
-        // Рисуем линию ground check
-        if (drawGroundCheckGizmo && col != null)
+        if (isStunned)
         {
-            Gizmos.color = groundGizmoColor;
-            float halfHeight = col.bounds.extents.y;
-            float checkDistance = halfHeight + groundCheckExtra;
-            Vector3 origin = transform.position;
-            origin.y += 0.01f;
-            Gizmos.DrawLine(origin, origin + Vector3.down * checkDistance);
-            Gizmos.DrawSphere(origin + Vector3.down * checkDistance, 0.05f);
+            Gizmos.color = stunGizmoColor;
+            Gizmos.DrawWireSphere(transform.position + Vector3.up * 0.5f, 0.35f);
         }
     }
 }
