@@ -37,11 +37,14 @@ public class BirdSinging : MonoBehaviour
     private bool _inputCooldown = false; // Защита от спама
     private float _inputCooldownTime = 0.3f; // Время кд после нажатия
 
+    private Darker _darker;
+
     private void Start()
     {
         InitializeNoteIndicators();
         _timer = _currentSingRate;
         _timingIndicator.color = _normalColor;
+        _darker = GetComponent<Darker>();
     }
 
     private void Update()
@@ -153,6 +156,7 @@ public class BirdSinging : MonoBehaviour
         if (!_waitingForInput)
         {
             Debug.Log("Не время для ноты! Подожди своего хода.");
+            _darker.MakeDarker();
             FlashAllIndicators(_wrongTimingColor);
             StartCoroutine(InputCooldown());
             return;
@@ -203,16 +207,19 @@ public class BirdSinging : MonoBehaviour
             if (timingAccuracy <= _perfectTiming)
             {
                 Debug.Log("PERFECT!");
+                _darker.MakeVeryMuchLighter();
                 FlashIndicator(_currentNoteId, _correctColor);
             }
             else if (timingAccuracy <= _goodTiming)
             {
                 Debug.Log("Good!");
+                _darker.MakeMuchLighter();
                 FlashIndicator(_currentNoteId, _correctColor);
             }
             else
             {
                 Debug.Log("Late but correct");
+                _darker.MakeDarker();
                 FlashIndicator(_currentNoteId, _correctColor);
             }
 
@@ -227,6 +234,8 @@ public class BirdSinging : MonoBehaviour
         else
         {
             Debug.Log("Wrong note!");
+            _darker.MakeDarker();
+
             FlashIndicator(_currentNoteId, _errorColor);
             // Не увеличиваем currentNoteId при ошибке
         }
@@ -235,6 +244,7 @@ public class BirdSinging : MonoBehaviour
     private void MissedNote()
     {
         Debug.Log("Missed note!");
+        _darker.MakeDarker();
         FlashIndicator(_currentNoteId, _missedColor);
 
         // Удаляем пропущенную ноту
