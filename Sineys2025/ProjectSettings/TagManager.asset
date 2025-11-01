@@ -7,8 +7,6 @@ TagManager:
   - JumpPad
   - Obstacle
   - SwitchZone
-  - Light
-  - Dark
   layers:
   - Default
   - TransparentFX
@@ -16,8 +14,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - Dark
+  - Light
   - 
   - 
   - 

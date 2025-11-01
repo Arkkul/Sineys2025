@@ -21,7 +21,7 @@ public class JumpTrigger : MonoBehaviour
     private IEnumerator SmoothJumpCoroutine(Transform target)
     {
         Vector3 startPosition = target.position;
-        Vector3 endPosition = startPosition + Vector3.up * _jumpForce +transform.forward* _forwardJumpForce;
+        Vector3 endPosition = startPosition + Vector3.up * _jumpForce + target.transform.forward* _forwardJumpForce;
         float elapsedTime = 0f;
 
         while (elapsedTime < _jumpDuration)
