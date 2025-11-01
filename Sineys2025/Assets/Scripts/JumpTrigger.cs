@@ -6,6 +6,7 @@ public class JumpTrigger : MonoBehaviour
 {
     [SerializeField] private float _jumpForce = 5f;
     [SerializeField] private float _jumpDuration = 0.5f;
+    [SerializeField] private float _forwardJumpForce = 5f;
     [SerializeField] private AnimationCurve _jumpCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     private void OnTriggerEnter(Collider other)
@@ -20,7 +21,7 @@ public class JumpTrigger : MonoBehaviour
     private IEnumerator SmoothJumpCoroutine(Transform target)
     {
         Vector3 startPosition = target.position;
-        Vector3 endPosition = startPosition + Vector3.up * _jumpForce;
+        Vector3 endPosition = startPosition + Vector3.up * _jumpForce +transform.forward* _forwardJumpForce;
         float elapsedTime = 0f;
 
         while (elapsedTime < _jumpDuration)
