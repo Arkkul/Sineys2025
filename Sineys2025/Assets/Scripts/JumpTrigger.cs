@@ -7,7 +7,7 @@ public class JumpTrigger : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         
-        if(other.tag == "Player")
+        if(other.GetComponent<PigController>() != null)
         {
             print(other.name);
             other.GetComponent<Rigidbody>().AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
