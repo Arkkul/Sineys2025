@@ -16,31 +16,15 @@ public class PigController : MonoBehaviour
     public string jumpTriggerTag = "JumpPad";
     public float jumpForce = 6f;
 
-    [Header("Stun / Knockback (front check)")]
-    [Tooltip("Тег препятствия. Только объекты с этим тегом будут вызывать стан/отталкивание.")]
+    [Header("Stun / Knockback")]
     public string obstacleTag = "Obstacle";
-
-    [Tooltip("Сила отбрасывания (импульс) при столкновении.")]
     public float knockbackForce = 8f;
-
-    [Tooltip("Длительность оглушения в секундах.")]
     public float stunDuration = 1.0f;
-
-    [Tooltip("Длина фронтальной зоны проверки (вперед от центра).")]
-    public float frontCheckLength = 1.2f;
-
-    [Tooltip("Ширина фронтальной зоны (по локальной X).")]
-    public float frontCheckWidth = 1.0f;
-
-    [Tooltip("Вертикальная высота зоны (по локальной Y). Обычно равна высоте коллайдера).")]
-    public float frontCheckHeight = 1.0f;
-
-    [Tooltip("Смещение зоны вперёд от позиции объекта (чтобы зона начиналась перед носом).")]
-    public float frontOffset = 0.2f;
 
     [Header("Gizmos")]
     public bool drawGizmo = true;
-    public Color gizmoColor = new Color(1f, 0.5f, 0f, 0.7f); // оранжевый прозрачный
+    public float gizmoLength = 2f;
+    public float gizmoHeadSize = 0.3f;
     public Color stunGizmoColor = Color.yellow;
 
     Rigidbody rb;
@@ -57,33 +41,35 @@ public class PigController : MonoBehaviour
 
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-
-        // Если height не задан явно, взять из коллайдера
-        if (frontCheckHeight <= 0f && col != null)
-            frontCheckHeight = Mathf.Max(0.1f, col.bounds.size.y);
     }
 
     void OnEnable()
     {
         if (turnAction != null && turnAction.action != null)
+        {
+            // убеждаемся, что action активен; не подписываемся на события, читаем значение
             turnAction.action.Enable();
+        }
     }
 
     void OnDisable()
     {
         if (turnAction != null && turnAction.action != null)
+        {
             turnAction.action.Disable();
+        }
     }
 
     void Update()
     {
+        // читаем текущее удерживаемое значение поворота (float -1..1)
         if (turnAction != null && turnAction.action != null)
         {
             turnInput = turnAction.action.ReadValue<float>();
         }
         else
         {
-            // fallback на клавиатуру
+            // fallback на клавиатуру, если action не назначен (необязательно)
             turnInput = 0f;
             var kb = Keyboard.current;
             if (kb != null)
@@ -100,19 +86,12 @@ public class PigController : MonoBehaviour
         {
             stunTimer -= Time.fixedDeltaTime;
             if (stunTimer <= 0f)
-                isStunned = false;
-        }
-
-        // Проверяем фронтальную зону только если не в стане (или можно проверять всегда)
-        if (!isStunned)
-        {
-            if (CheckFrontObstacle())
             {
-                StartStunWithKnockback();
+                isStunned = false;
+                // удерживаемый ввод уже читается в Update и применится сразу
             }
         }
 
-        // Поворот (только вне стана)
         if (!isStunned && Mathf.Abs(turnInput) > 0.001f)
         {
             float deltaDeg = turnInput * turnSpeedDegPerSec * Time.fixedDeltaTime;
@@ -120,39 +99,35 @@ public class PigController : MonoBehaviour
             rb.MoveRotation(rb.rotation * deltaRot);
         }
 
-        // Постоянное движение вперёд (выключено в стане)
         if (!isStunned)
         {
             Vector3 forwardVel = transform.forward * forwardSpeed;
             rb.linearVelocity = new Vector3(forwardVel.x, rb.linearVelocity.y, forwardVel.z);
         }
-        // если в стане — rb.velocity не перезаписываем, чтобы сохранить knockback эффект
+        // в стане не перезаписываем velocity, чтобы сохранить knockback эффект
     }
 
-    bool CheckFrontObstacle()
+    void OnCollisionEnter(Collision collision)
     {
-        if (string.IsNullOrEmpty(obstacleTag)) return false;
-        if (col == null) return false;
+        if (isStunned) return;
+        if (string.IsNullOrEmpty(obstacleTag)) return;
 
-        // Центр зоны: от позиции объекта вверх на половину высоты и вперед на frontOffset + frontCheckLength/2
-        Vector3 center = transform.position +
-                         transform.up * (frontCheckHeight * 0.5f) +
-                         transform.forward * (frontOffset + frontCheckLength * 0.5f);
-
-        Vector3 halfExtents = new Vector3(frontCheckWidth * 0.5f, frontCheckHeight * 0.5f, frontCheckLength * 0.5f);
-
-        // Собираем все коллайдеры в зоне. QueryTriggerInteraction.Ignore чтобы не срабатывать на триггеры.
-        Collider[] hits = Physics.OverlapBox(center, halfExtents, transform.rotation, ~0, QueryTriggerInteraction.Ignore);
-        if (hits == null || hits.Length == 0) return false;
-
-        foreach (var h in hits)
+        if (CollisionHasTag(collision, obstacleTag))
         {
-            if (h == null) continue;
-            if (h.gameObject == this.gameObject) continue;
-            if (h.CompareTag(obstacleTag) || h.gameObject.CompareTag(obstacleTag) || h.transform.root.CompareTag(obstacleTag))
-                return true;
+            StartStunWithKnockback();
         }
+    }
 
+    bool CollisionHasTag(Collision collision, string tagToCheck)
+    {
+        if (collision.collider != null && collision.collider.CompareTag(tagToCheck)) return true;
+        if (collision.gameObject != null && collision.gameObject.CompareTag(tagToCheck)) return true;
+        if (collision.transform != null && collision.transform.root != null && collision.transform.root.CompareTag(tagToCheck)) return true;
+        foreach (var contact in collision.contacts)
+        {
+            if (contact.otherCollider != null && contact.otherCollider.CompareTag(tagToCheck)) return true;
+            if (contact.thisCollider != null && contact.thisCollider.CompareTag(tagToCheck)) return true;
+        }
         return false;
     }
 
@@ -160,7 +135,6 @@ public class PigController : MonoBehaviour
     {
         isStunned = true;
         stunTimer = Mathf.Max(0f, stunDuration);
-
         Vector3 knockDir = -transform.forward.normalized;
         rb.AddForce(knockDir * knockbackForce, ForceMode.Impulse);
     }
@@ -175,21 +149,21 @@ public class PigController : MonoBehaviour
     void OnDrawGizmos()
     {
         if (!drawGizmo) return;
-        if (transform == null) return;
+        Transform t = transform;
+        Vector3 start = t.position;
+        Vector3 end = start + t.forward * gizmoLength;
 
-        // зона фронтальной проверки
-        Vector3 center = transform.position +
-                         transform.up * (frontCheckHeight * 0.5f) +
-                         transform.forward * (frontOffset + frontCheckLength * 0.5f);
-        Vector3 halfExtents = new Vector3(frontCheckWidth * 0.5f, frontCheckHeight * 0.5f, frontCheckLength * 0.5f);
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(start, end);
+        Gizmos.DrawSphere(end, gizmoHeadSize * 0.4f);
 
-        Gizmos.color = gizmoColor;
-        Matrix4x4 old = Gizmos.matrix;
-        Gizmos.matrix = Matrix4x4.TRS(center, transform.rotation, Vector3.one);
-        Gizmos.DrawWireCube(Vector3.zero, halfExtents * 2f);
-        Gizmos.matrix = old;
+        Vector3 dir = (end - start).normalized;
+        Quaternion look = Quaternion.LookRotation(dir);
+        Vector3 rightHead = look * Quaternion.Euler(0, 150f, 0) * Vector3.forward;
+        Vector3 leftHead  = look * Quaternion.Euler(0, 210f, 0) * Vector3.forward;
+        Gizmos.DrawLine(end, end + rightHead * gizmoHeadSize);
+        Gizmos.DrawLine(end, end + leftHead * gizmoHeadSize);
 
-        // состояние стана
         if (isStunned)
         {
             Gizmos.color = stunGizmoColor;
