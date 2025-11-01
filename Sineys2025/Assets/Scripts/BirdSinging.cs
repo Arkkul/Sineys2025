@@ -375,8 +375,18 @@ public class BirdSinging : MonoBehaviour
         }
         else
         {
+
             Debug.Log("Sequence completed!");
             _waitingForInput = false;
+
+
+            InitializeNoteIndicators();
+            _timer = _currentSingRate;
+            _timingIndicator.color = _normalColor;
+
+            _currentNoteId = 0;
+            _expectedNote = _notes[_currentNoteId];
+            _waitingForInput = true;
         }
 
         // Обновляем подсветку активной ноты
@@ -421,4 +431,42 @@ public class BirdSinging : MonoBehaviour
     {
         return $"Current note: {_currentNoteId}, Waiting: {_waitingForInput}, Cooldown: {_inputCooldown}";
     }
+    /* [SerializeField] private string _currentNote;
+     [SerializeField] private List<string> _notes;
+     [SerializeField] private int _currentNoteId = 0;
+     [SerializeField] private float _currentSingRate = 2;
+     [SerializeField] private float _noteActiveTime;
+
+     private void Start()
+     {
+         InvokeRepeating(nameof(CheckNote), _currentSingRate, _currentSingRate);
+     }
+
+     public void Sing(string note)
+     {
+         print(note);
+         _currentNote = note;
+         Invoke(nameof(ResetCurrentNote), _noteActiveTime);
+     }
+
+     private void ResetCurrentNote()
+     {
+         _currentNote = "";
+     }
+
+     private void CheckNote()
+     {
+         if (_notes[_currentNoteId] == _currentNote)
+         {
+             Debug.Log("good");
+         }
+         else
+         {
+             Debug.Log("bad");
+         }
+         if(_currentNoteId == _notes.Count - 1)
+         {
+             _currentNoteId = 0;
+         }
+     }*/
 }
