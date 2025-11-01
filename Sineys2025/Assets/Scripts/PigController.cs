@@ -35,6 +35,10 @@ public class PigController : MonoBehaviour
     [Tooltip("Вертикальная высота зоны (по локальной Y). Обычно равна высоте коллайдера).")]
     public float frontCheckHeight = 1.0f;
 
+    [Tooltip("Вертикальный отступ начала зоны от позиции объекта (вверх положительное, вниз отрицательное).\n" +
+             "Нижняя грань зоны будет расположена в transform.position + transform.up * frontCheckYOffset.")]
+    public float frontCheckYOffset = 0f;
+
     [Tooltip("Смещение зоны вперёд от позиции объекта (чтобы зона начиналась перед носом).")]
     public float frontOffset = 0.2f;
 
@@ -103,13 +107,11 @@ public class PigController : MonoBehaviour
                 isStunned = false;
         }
 
-        // Проверяем фронтальную зону только если не в стане (или можно проверять всегда)
+        // Проверяем фронтальную зону только если не в стане
         if (!isStunned)
         {
             if (CheckFrontObstacle())
-            {
                 StartStunWithKnockback();
-            }
         }
 
         // Поворот (только вне стана)
@@ -134,8 +136,11 @@ public class PigController : MonoBehaviour
         if (string.IsNullOrEmpty(obstacleTag)) return false;
         if (col == null) return false;
 
-        // Центр зоны: от позиции объекта вверх на половину высоты и вперед на frontOffset + frontCheckLength/2
-        Vector3 center = transform.position +
+        // Нижняя грань зоны: позиция + vertical offset
+        Vector3 bottomPoint = transform.position + transform.up * frontCheckYOffset;
+
+        // Центр зоны = нижняя грань + половина высоты + смещение вперёд (half depth)
+        Vector3 center = bottomPoint +
                          transform.up * (frontCheckHeight * 0.5f) +
                          transform.forward * (frontOffset + frontCheckLength * 0.5f);
 
@@ -177,8 +182,11 @@ public class PigController : MonoBehaviour
         if (!drawGizmo) return;
         if (transform == null) return;
 
-        // зона фронтальной проверки
-        Vector3 center = transform.position +
+        // Нижняя грань зоны
+        Vector3 bottomPoint = transform.position + transform.up * frontCheckYOffset;
+
+        // центр зоны для отрисовки
+        Vector3 center = bottomPoint +
                          transform.up * (frontCheckHeight * 0.5f) +
                          transform.forward * (frontOffset + frontCheckLength * 0.5f);
         Vector3 halfExtents = new Vector3(frontCheckWidth * 0.5f, frontCheckHeight * 0.5f, frontCheckLength * 0.5f);
@@ -188,6 +196,10 @@ public class PigController : MonoBehaviour
         Gizmos.matrix = Matrix4x4.TRS(center, transform.rotation, Vector3.one);
         Gizmos.DrawWireCube(Vector3.zero, halfExtents * 2f);
         Gizmos.matrix = old;
+
+        // рисуем точку начала зоны
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(bottomPoint, 0.03f);
 
         // состояние стана
         if (isStunned)
