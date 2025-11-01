@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody), typeof(Collider))]
 public class PigController : MonoBehaviour
 {
+    [SerializeField] private Animator _animator;
     [Header("Motion")]
     public float forwardSpeed = 5f;
     public float turnSpeedDegPerSec = 90f;
@@ -67,6 +68,11 @@ public class PigController : MonoBehaviour
             frontCheckHeight = Mathf.Max(0.1f, col.bounds.size.y);
     }
 
+    public void Jump()
+    {
+        _animator.SetTrigger("Jump");
+    }
+
     void OnEnable()
     {
         if (turnAction != null && turnAction.action != null)
@@ -102,6 +108,7 @@ public class PigController : MonoBehaviour
     {
         if (isStunned)
         {
+            _animator.SetBool("Jiggle", true);
             stunTimer -= Time.fixedDeltaTime;
             if (stunTimer <= 0f)
                 isStunned = false;
@@ -110,6 +117,7 @@ public class PigController : MonoBehaviour
         // Проверяем фронтальную зону только если не в стане
         if (!isStunned)
         {
+            _animator.SetBool("Jiggle", false);
             if (CheckFrontObstacle())
                 StartStunWithKnockback();
         }

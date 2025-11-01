@@ -1,9 +1,9 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class JumpTrigger : MonoBehaviour
 {
+    [SerializeField] private Animator _animator;
     [SerializeField] private float _jumpForce = 5f;
     [SerializeField] private float _jumpDuration = 0.5f;
     [SerializeField] private float _forwardJumpForce = 5f;
@@ -14,6 +14,7 @@ public class JumpTrigger : MonoBehaviour
         if (other.GetComponent<PigController>() != null)
         {
             print(other.name);
+            other.GetComponent<PigController>().Jump();
             StartCoroutine(SmoothJumpCoroutine(other.transform));
         }
     }
