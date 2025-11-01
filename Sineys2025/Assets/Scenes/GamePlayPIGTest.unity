@@ -1955,9 +1955,12 @@ MonoBehaviour:
   obstacleTag: Obstacle
   knockbackForce: 10
   stunDuration: 1
+  frontCheckLength: 0.6
+  frontCheckWidth: 0.8
+  frontCheckHeight: 0.5
+  frontOffset: 0.2
   drawGizmo: 1
-  gizmoLength: 2
-  gizmoHeadSize: 0.3
+  gizmoColor: {r: 1, g: 0.5, b: 0, a: 0.7}
   stunGizmoColor: {r: 0.097738504, g: 1, b: 0, a: 1}
 --- !u!54 &1732083801
 Rigidbody:
