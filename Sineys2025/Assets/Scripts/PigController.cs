@@ -70,7 +70,14 @@ public class PigController : MonoBehaviour
 
     public void Jump()
     {
-        _animator.SetTrigger("Jump");
+       // _animator.SetTrigger("Jump");
+        _animator.SetBool("Jump2", true);
+    }
+
+    public void UnJump()
+    {
+        //_animator.SetTrigger("Jump");
+        _animator.SetBool("Jump2", false);
     }
 
     void OnEnable()

@@ -36,5 +36,6 @@ public class JumpTrigger : MonoBehaviour
         }
 
         target.position = endPosition;
+        target.GetComponent<PigController>().UnJump();
     }
 }
