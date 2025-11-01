@@ -5,8 +5,8 @@ public class Darker : MonoBehaviour
 {
     [SerializeField] RawImage _image;
     [SerializeField] float _alpha = 0;
-    [SerializeField] float _darkStep = 0.25f;
-    [SerializeField] float _lightStep1 = 0.1f;
+    [SerializeField] float _darkStep = 0.35f;
+    [SerializeField] float _lightStep1 = 0.07f;
 
     public float Alpha
     {
@@ -17,7 +17,7 @@ public class Darker : MonoBehaviour
             _alpha = value;
             if (_alpha > 1)
             {
-                _alpha = 0.8f;
+                _alpha = 1f;
             }
            
         }

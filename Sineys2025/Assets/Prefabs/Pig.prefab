@@ -479,23 +479,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BirdSinging
   _currentNote: 
   _notes:
-  - A
-  - B
-  - C
-  - A
-  - A
+  - "\u2193"
+  - "\u2191"
+  - "\u2192"
+  - "\u2190"
+  - "\u2190"
+  - "\u2192"
+  - "\u2193"
+  - "\u2193"
+  - "\u2191"
+  - "\u2192"
+  - "\u2190"
   _currentNoteId: 0
   _currentSingRate: 2.09
   _noteActiveTime: 0.2
+  _perfectMessage: {fileID: 0}
+  _niceMessage: {fileID: 0}
+  _missMessage: {fileID: 0}
+  _errorMessage: {fileID: 0}
+  _spamMessage: {fileID: 0}
   _noteIndicatorPrefab: {fileID: 620036552819930557, guid: ce6fd23ead6c49f45ad025e285f05919, type: 3}
   _notesContainer: {fileID: 0}
   _timingIndicator: {fileID: 0}
   _normalColor: {r: 1, g: 1, b: 1, a: 1}
-  _missedColor: {r: 1, g: 0, b: 0, a: 1}
-  _correctColor: {r: 0, g: 1, b: 0, a: 1}
-  _errorColor: {r: 1, g: 0, b: 0, a: 1}
-  _activeNoteColor: {r: 0, g: 0, b: 1, a: 1}
-  _wrongTimingColor: {r: 1, g: 0, b: 1, a: 1}
+  _missedColor: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 1}
+  _correctColor: {r: 0.5235849, g: 1, b: 0.5235849, a: 1}
+  _errorColor: {r: 0.3584906, g: 0, b: 0, a: 1}
+  _activeNoteColor: {r: 0, g: 1, b: 0.8300319, a: 1}
+  _wrongTimingColor: {r: 0.6509434, g: 0.29169634, b: 0.6509434, a: 1}
   _perfectTiming: 0.5
   _goodTiming: 0.8
 --- !u!114 &4205148478602241497
@@ -858,7 +869,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7539053110786930753}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -3.33, y: 0.5700002, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -974,8 +985,8 @@ MonoBehaviour:
   stunDuration: 1
   frontCheckLength: 0.6
   frontCheckWidth: 0.8
-  frontCheckHeight: 1
-  frontCheckYOffset: -0.5
+  frontCheckHeight: 0.81
+  frontCheckYOffset: -0.34
   frontOffset: 0.2
   drawGizmo: 1
   gizmoColor: {r: 1, g: 0.5, b: 0, a: 0.7}
@@ -995,7 +1006,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -1216,6 +1227,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f9f868907bb40564d90e51414e1f9ad8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 9005970724368315523}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f9f868907bb40564d90e51414e1f9ad8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7577488939783494179}
   m_SourcePrefab: {fileID: 100100000, guid: f9f868907bb40564d90e51414e1f9ad8, type: 3}
 --- !u!4 &1273181979102566935 stripped
 Transform:
@@ -1249,3 +1263,24 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!65 &7577488939783494179
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1936707196819996845}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.4510758, y: 0.32674187, z: 0.59613943}
+  m_Center: {x: -0.007839203, y: 0.25337094, z: 0}

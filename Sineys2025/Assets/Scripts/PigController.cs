@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,6 +6,7 @@ using UnityEngine.InputSystem;
 public class PigController : MonoBehaviour
 {
     [SerializeField] private Animator _animator;
+  
     [Header("Motion")]
     public float forwardSpeed = 5f;
     public float turnSpeedDegPerSec = 90f;
@@ -61,7 +63,7 @@ public class PigController : MonoBehaviour
         col = GetComponent<Collider>();
 
         rb.interpolation = RigidbodyInterpolation.Interpolate;
-        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+      //  rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
         // Если height не задан явно, взять из коллайдера
         if (frontCheckHeight <= 0f && col != null)

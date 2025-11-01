@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 public class BirdSinging : MonoBehaviour
 {
@@ -11,6 +12,14 @@ public class BirdSinging : MonoBehaviour
     [SerializeField] private int _currentNoteId = 0;
     [SerializeField] private float _currentSingRate = 2;
     [SerializeField] private float _noteActiveTime;
+
+    [Header("Messages")]
+    [SerializeField] private Animator _perfectMessage;
+    [SerializeField] private Animator _niceMessage;
+    [SerializeField] private Animator _missMessage;
+    [SerializeField] private Animator _errorMessage;
+    [SerializeField] private Animator _spamMessage;
+
 
     [Header("UI Indicators")]
     [SerializeField] private GameObject _noteIndicatorPrefab;
@@ -74,7 +83,7 @@ public class BirdSinging : MonoBehaviour
         for (int i = 0; i < _notes.Count; i++)
         {
             GameObject indicator = Instantiate(_noteIndicatorPrefab, _notesContainer);
-            Text textComponent = indicator.GetComponentInChildren<Text>();
+            TextMeshProUGUI textComponent = indicator.GetComponentInChildren<TextMeshProUGUI>();
             Image imageComponent = indicator.GetComponent<Image>();
 
             if (textComponent != null)
@@ -97,7 +106,7 @@ public class BirdSinging : MonoBehaviour
     private void SetIndicatorAlpha(GameObject indicator, float alpha)
     {
         Image image = indicator.GetComponent<Image>();
-        Text text = indicator.GetComponentInChildren<Text>();
+        TextMeshProUGUI text = indicator.GetComponentInChildren<TextMeshProUGUI>();
 
         if (image != null)
         {
@@ -150,12 +159,14 @@ public class BirdSinging : MonoBehaviour
         if (_inputCooldown)
         {
             Debug.Log("Слишком быстро! Подожди немного перед следующим нажатием.");
+            _spamMessage.SetTrigger("Show");
             return;
         }
 
         if (!_waitingForInput)
         {
             Debug.Log("Не время для ноты! Подожди своего хода.");
+            
             _darker.MakeDarker();
             FlashAllIndicators(_wrongTimingColor);
             StartCoroutine(InputCooldown());
@@ -207,18 +218,21 @@ public class BirdSinging : MonoBehaviour
             if (timingAccuracy <= _perfectTiming)
             {
                 Debug.Log("PERFECT!");
+                _perfectMessage.SetTrigger("Show");
                 _darker.MakeVeryMuchLighter();
                 FlashIndicator(_currentNoteId, _correctColor);
             }
             else if (timingAccuracy <= _goodTiming)
             {
                 Debug.Log("Good!");
+                _niceMessage.SetTrigger("Show");
                 _darker.MakeMuchLighter();
                 FlashIndicator(_currentNoteId, _correctColor);
             }
             else
             {
                 Debug.Log("Late but correct");
+
                 _darker.MakeDarker();
                 FlashIndicator(_currentNoteId, _correctColor);
             }
@@ -234,6 +248,7 @@ public class BirdSinging : MonoBehaviour
         else
         {
             Debug.Log("Wrong note!");
+            _errorMessage.SetTrigger("Show");
             _darker.MakeDarker();
 
             FlashIndicator(_currentNoteId, _errorColor);
@@ -244,6 +259,7 @@ public class BirdSinging : MonoBehaviour
     private void MissedNote()
     {
         Debug.Log("Missed note!");
+        _missMessage.SetTrigger("Show");
         _darker.MakeDarker();
         FlashIndicator(_currentNoteId, _missedColor);
 
