@@ -1858,7 +1858,7 @@ GameObject:
   - component: {fileID: 1732083803}
   m_Layer: 0
   m_Name: Pig
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1955,12 +1955,9 @@ MonoBehaviour:
   obstacleTag: Obstacle
   knockbackForce: 10
   stunDuration: 1
-  frontCheckLength: 0.5
-  frontCheckWidth: 0.9
-  frontCheckHeight: 0.5
-  frontOffset: 0.2
   drawGizmo: 1
-  gizmoColor: {r: 1, g: 0.5, b: 0, a: 0.7}
+  gizmoLength: 2
+  gizmoHeadSize: 0.3
   stunGizmoColor: {r: 0.097738504, g: 1, b: 0, a: 1}
 --- !u!54 &1732083801
 Rigidbody:
