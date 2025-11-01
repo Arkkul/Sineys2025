@@ -14,28 +14,29 @@ public class JumpTrigger : MonoBehaviour
         if (other.GetComponent<PigController>() != null)
         {
             print(other.name);
-            other.GetComponent<PigController>().Jump();
-            StartCoroutine(SmoothJumpCoroutine(other.transform));
+            StartCoroutine(PlatformIndependentJump(other.transform));
         }
     }
 
-    private IEnumerator SmoothJumpCoroutine(Transform target)
+    private IEnumerator PlatformIndependentJump(Transform target)
     {
         Vector3 startPosition = target.position;
-        Vector3 endPosition = startPosition + Vector3.up * _jumpForce + target.transform.forward* _forwardJumpForce;
+        Vector3 endPosition = startPosition + Vector3.up * _jumpForce + target.transform.forward * _forwardJumpForce;
         float elapsedTime = 0f;
 
         while (elapsedTime < _jumpDuration)
         {
+            // Этот расчет будет одинаковым на любом компьютере
             float progress = elapsedTime / _jumpDuration;
             float curveValue = _jumpCurve.Evaluate(progress);
 
             target.position = Vector3.Lerp(startPosition, endPosition, curveValue);
-            elapsedTime += Time.fixedDeltaTime;
+
+            elapsedTime += Time.deltaTime;
             yield return null;
         }
 
+        // Гарантируем точное конечное положение
         target.position = endPosition;
-        target.GetComponent<PigController>().UnJump();
     }
 }
