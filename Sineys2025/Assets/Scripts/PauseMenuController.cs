@@ -17,6 +17,7 @@ public class PauseMenuController : MonoBehaviour
 
     [Header("Audio")]
     public AudioMixer masterMixer;
+    [SerializeField] private AudioSource _soundTrack;
     [Tooltip("Exposed parameter name in AudioMixer (exact name). If blank or not found, script будет использовать AudioListener.volume как fallback.")]
     public string exposedVolumeParam = "MasterVolume";
     public AudioClip[] clickClips;
@@ -88,8 +89,14 @@ public class PauseMenuController : MonoBehaviour
 
     public void TogglePause()
     {
-        if (!isPaused) DoPause();
-        else DoResume();
+        if (!isPaused)
+        {
+            DoPause();
+        }
+
+        else {
+            DoResume(); 
+        }
     }
 
     void DoPause()
@@ -97,6 +104,7 @@ public class PauseMenuController : MonoBehaviour
         isPaused = true;
         if (pausePanel != null) pausePanel.SetActive(true);
         Time.timeScale = 0f;
+        _soundTrack.Pause();
     }
 
     void DoResume()
@@ -104,6 +112,7 @@ public class PauseMenuController : MonoBehaviour
         isPaused = false;
         if (pausePanel != null) pausePanel.SetActive(false);
         Time.timeScale = 1f;
+        _soundTrack.UnPause();
     }
 
     public void OnContinueButton()
