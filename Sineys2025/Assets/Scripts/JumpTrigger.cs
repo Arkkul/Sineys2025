@@ -31,7 +31,7 @@ public class JumpTrigger : MonoBehaviour
             float curveValue = _jumpCurve.Evaluate(progress);
 
             target.position = Vector3.Lerp(startPosition, endPosition, curveValue);
-            elapsedTime += Time.deltaTime;
+            elapsedTime += Time.fixedDeltaTime;
             yield return null;
         }
 
