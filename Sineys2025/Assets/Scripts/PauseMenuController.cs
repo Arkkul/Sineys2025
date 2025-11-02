@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 [AddComponentMenu("UI/PauseMenuController")]
 public class PauseMenuController : MonoBehaviour
 {
+   
     [Header("UI")]
     public GameObject pausePanel;
     public GameObject[] volumeIndicators;
@@ -30,13 +31,13 @@ public class PauseMenuController : MonoBehaviour
     public float volumeStepPercent = 10f;
 
     // internal
-    bool isPaused = false;
+    [SerializeField] private bool isPaused = false;
     bool mixerHasParam = false; // true если masterMixer и exposedVolumeParam валидны
     bool forceUseAudioListenerFallback = false; // если true — принудительно используем AudioListener
 
     void Awake()
     {
-        if (pausePanel != null) pausePanel.SetActive(false);
+        if (pausePanel != null) pausePanel.SetActive(isPaused);
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
@@ -46,7 +47,7 @@ public class PauseMenuController : MonoBehaviour
         // Проверим заранее, существует ли указанный exposed параметр
         RefreshMixerParamAvailability();
 
-        ApplyVolumeToMixer();
+       // ApplyVolumeToMixer();
         UpdateVolumeIndicators();
     }
 
