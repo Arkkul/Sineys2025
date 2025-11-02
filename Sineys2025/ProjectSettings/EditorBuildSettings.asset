@@ -11,9 +11,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ProductionScenes/LD-test.unity
     guid: c38b464078e527c468591b3c3805cc5a
+  - enabled: 0
+    path: Assets/Scenes/ProductionScenes/test.unity
+    guid: 878cf4ea77c626e4e84b01fb5b931833
   - enabled: 1
     path: Assets/Scenes/ProductionScenes/Tutorial.unity
-    guid: 878cf4ea77c626e4e84b01fb5b931833
+    guid: 474a03c5e13e4de489b6d1146ba1034c
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: caa7d3821729bcf46b9f4909ad3e4fa7, type: 3}
   m_UseUCBPForAssetBundles: 0
